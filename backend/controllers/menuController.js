@@ -1,39 +1,33 @@
-const Menu = require("../models/Menu");
+import Menu from "../models/Menu.js";
 
-// GET semua menu
-const getMenus = async (req, res, next) => {
+// GET all menu
+export const getMenus = async (req, res, next) => {
   try {
     const menus = await Menu.find();
-    res.json({ success: true, data: menus });
-  } catch (err) {
-    next(err); // dilempar ke error handler
-  }
-};
-
-// POST tambah menu
-const createMenu = async (req, res, next) => {
-  try {
-    const { nama, harga, deskripsi } = req.body;
-
-    if (!nama || !harga) {
-      const error = new Error("Nama dan harga wajib diisi");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    if (isNaN(harga)) {
-      const error = new Error("Harga harus berupa angka");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const menu = new Menu({ nama, harga, deskripsi });
-    await menu.save();
-
-    res.status(201).json({ success: true, data: menu });
+    res.json(menus);
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { getMenus, createMenu };
+// POST create menu
+export const createMenu = async (req, res, next) => {
+  try {
+    const { name, price, description } = req.body;
+
+    if (!name || !price) {
+      return res.status(400).json({ success: false, message: "Name & Price wajib diisi" });
+    }
+
+    if (isNaN(price)) {
+      return res.status(400).json({ success: false, message: "Price harus berupa angka" });
+    }
+
+    const newMenu = new Menu({ name, price, description });
+    const savedMenu = await newMenu.save();
+
+    res.status(201).json({ success: true, data: savedMenu });
+  } catch (err) {
+    next(err);
+  }
+};
