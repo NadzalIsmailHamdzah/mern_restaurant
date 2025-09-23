@@ -1,33 +1,63 @@
-import Menu from "../models/Menu.js";
+const Menu = require("../models/Menu");
 
 // GET all menu
-export const getMenus = async (req, res, next) => {
+exports.getMenus = async (req, res) => {
   try {
     const menus = await Menu.find();
     res.json(menus);
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
 // POST create menu
-export const createMenu = async (req, res, next) => {
+exports.createMenu = async (req, res) => {
   try {
-    const { name, price, description } = req.body;
-
-    if (!name || !price) {
-      return res.status(400).json({ success: false, message: "Name & Price wajib diisi" });
+    const { nama, harga, kategori } = req.body;
+    if (!nama || !harga || !kategori) {
+      return res.status(400).json({ message: "Nama, harga, dan kategori wajib diisi" });
+    }
+    if (isNaN(harga)) {
+      return res.status(400).json({ message: "Harga harus berupa angka" });
     }
 
-    if (isNaN(price)) {
-      return res.status(400).json({ success: false, message: "Price harus berupa angka" });
-    }
-
-    const newMenu = new Menu({ name, price, description });
-    const savedMenu = await newMenu.save();
-
-    res.status(201).json({ success: true, data: savedMenu });
+    const menu = new Menu({ nama, harga, kategori });
+    const saved = await menu.save();
+    res.status(201).json(saved);
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// GET by ID
+exports.getMenuById = async (req, res) => {
+  try {
+    const menu = await Menu.findById(req.params.id);
+    if (!menu) return res.status(404).json({ message: "Menu tidak ditemukan" });
+    res.json(menu);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PUT update
+exports.updateMenu = async (req, res) => {
+  try {
+    const updated = await Menu.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: "Menu tidak ditemukan" });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE
+exports.deleteMenu = async (req, res) => {
+  try {
+    const deleted = await Menu.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Menu tidak ditemukan" });
+    res.json({ message: "Menu dihapus" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
