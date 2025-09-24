@@ -6,11 +6,13 @@ const {
   updateReview,
   deleteReview,
 } = require("../controllers/reviewController");
+const protect = require("../middleware/authMiddleware");
+
 
 // Admin only
 router.get("/", getReviews);
-router.post("/", createReview);
-router.put("/:id", updateReview);
-router.delete("/:id", deleteReview);
+router.post("/", protect, createReview);
+router.put("/:id", protect, updateReview);
+router.delete("/:id", protect, deleteReview);
 
 module.exports = router;

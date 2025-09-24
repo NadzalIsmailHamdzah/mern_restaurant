@@ -1,25 +1,41 @@
-import Admin from "../models/admin.js";
-import jwt from "jsonwebtoken";
+const Admin = require("../models/Admin");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-// POST /api/auth/login
-export const loginAdmin = async (req, res, next) => {
+// Generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+};
+
+// @desc    Login Admin
+// @route   POST /api/auth/login
+// @access  Public
+const loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username dan password wajib diisi" });
+    }
+
     const admin = await Admin.findOne({ username });
-    if (!admin) return res.status(401).json({ message: "Invalid credentials" });
+    if (!admin) {
+      return res.status(401).json({ message: "Username salah" });
+    }
 
     const isMatch = await admin.matchPassword(password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Password salah" });
+    }
 
-    // generate token
-    const token = jwt.sign(
-      { id: admin._id, username: admin.username },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.json({ token });
+    res.json({
+      _id: admin._id,
+      username: admin.username,
+      token: generateToken(admin._id),
+    });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
+
+module.exports = { loginAdmin };

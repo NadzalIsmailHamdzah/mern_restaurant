@@ -6,11 +6,14 @@ const {
   updateBanner,
   deleteBanner,
 } = require("../controllers/bannerController");
+const protect = require("../middleware/authMiddleware");
+
+//Public
+router.get("/", getBanners);
 
 // Admin only
-router.get("/", getBanners);
-router.post("/", createBanner);
-router.put("/:id", updateBanner);
-router.delete("/:id", deleteBanner);
+router.post("/", protect, createBanner);
+router.put("/:id", protect, updateBanner);
+router.delete("/:id", protect, deleteBanner);
 
 module.exports = router;

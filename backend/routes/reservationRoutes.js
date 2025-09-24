@@ -6,10 +6,12 @@ const {
   updateReservationStatus,
   deleteReservation,
 } = require("../controllers/reservationController");
+const protect = require("../middleware/authMiddleware");
+
 
 router.get("/", getReservations);
-router.post("/", createReservation);
-router.put("/:id/status", updateReservationStatus);
-router.delete("/:id", deleteReservation);
+router.post("/", protect, createReservation);
+router.put("/:id/status", protect, updateReservationStatus);
+router.delete("/:id", protect, deleteReservation);
 
 module.exports = router;
