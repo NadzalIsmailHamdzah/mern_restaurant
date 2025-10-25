@@ -1,5 +1,5 @@
-const Admin = require("../models/Admin");
-const jwt = require("jsonwebtoken");
+import Admin from "../models/Admin.js"; // <-- Ubah require, tambah .js
+import jwt from "jsonwebtoken";
 
 const protect = async (req, res, next) => {
   let token;
@@ -21,4 +21,4 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = protect;
+export default protect; // <-- Ubah module.exports

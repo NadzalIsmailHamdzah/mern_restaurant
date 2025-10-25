@@ -1,9 +1,11 @@
-const express = require("express");
-const { loginAdmin } = require("../controllers/authController");
+// File 1: routes/authRoutes.js
+
+import express from "express";
+import { loginAdmin } from "../controllers/authController.js"; // <-- Tambah .js
 
 const router = express.Router();
 
 // Login
 router.post("/login", loginAdmin);
 
-module.exports = router;
+export default router; // <-- Ubah export

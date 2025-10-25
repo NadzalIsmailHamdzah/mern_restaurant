@@ -1,6 +1,5 @@
-const Admin = require("../models/Admin");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import Admin from "../models/Admin.js"; // <-- Tambah .js
+import jwt from "jsonwebtoken";
 
 // Generate JWT
 const generateToken = (id) => {
@@ -10,12 +9,14 @@ const generateToken = (id) => {
 // @desc    Login Admin
 // @route   POST /api/auth/login
 // @access  Public
-const loginAdmin = async (req, res) => {
+export const loginAdmin = async (req, res, next) => { // <-- Tambah 'export'
   try {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: "Username dan password wajib diisi" });
+      return res
+        .status(400)
+        .json({ message: "Username dan password wajib diisi" });
     }
 
     const admin = await Admin.findOne({ username });
@@ -29,13 +30,13 @@ const loginAdmin = async (req, res) => {
     }
 
     res.json({
-      _id: admin._id,
-      username: admin.username,
       token: generateToken(admin._id),
+      user: {
+        _id: admin._id,
+        username: admin.username,
+      },
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
-
-module.exports = { loginAdmin };
