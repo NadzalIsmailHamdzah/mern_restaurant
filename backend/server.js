@@ -1,8 +1,16 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const connectDB = require("./config/db");
-const errorHandler = require("./middleware/errorHandler");
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import connectDB from "./config/db.js"; // <-- Tambah .js
+import errorHandler from "./middleware/errorHandler.js"; // <-- Tambah .js
+
+// Import semua rute di atas
+import menuRoutes from "./routes/menuRoutes.js";
+import aboutRoutes from "./routes/aboutRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import bannerRoutes from "./routes/bannerRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -11,14 +19,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/menu", require("./routes/menuRoutes"));
-app.use("/api/about", require("./routes/aboutRoutes").default);
-app.use("/api/reservations", require("./routes/reservationRoutes"));
-app.use("/api/reviews", require("./routes/reviewRoutes"));
-app.use("/api/banners", require("./routes/bannerRoutes"));
-app.use("/api/auth", require("./routes/authRoutes"));
+// Gunakan variabel rute yang sudah di-import
+app.use("/api/menu", menuRoutes);
+app.use("/api/about", aboutRoutes);
+app.use("/api/reservations", reservationRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/banners", bannerRoutes);
+app.use("/api/auth", authRoutes);
 
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Error handler HARUS didefinisikan setelah semua rute
 app.use(errorHandler);
+
+const PORT = process.env.PORT;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
