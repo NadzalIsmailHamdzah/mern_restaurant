@@ -6,12 +6,20 @@ const aboutSchema = new mongoose.Schema(
       type: String,
       required: [true, "Title is required"],
     },
+    sub_title: {
+      type: String,
+      required: [true, "Title is required"],
+    },
+    content_title: {
+      type: String,
+      required: [true, "Title is required"],
+    },
     description: {
       type: String,
       required: [true, "Description is required"],
     },
     image: {
-      type: String, // bisa URL atau path ke file
+      type: String,
       default: "",
     },
   },
