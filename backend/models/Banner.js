@@ -1,11 +1,21 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const bannerSchema = new mongoose.Schema(
   {
-    imageUrl: { type: String, required: true },
-    isActive: { type: Boolean, default: true },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+    },
+    description: {
+      type: String,
+      required: [true, "Description is required"],
+    },
+    image: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Banner", bannerSchema);
+export default mongoose.model("Banner", bannerSchema);

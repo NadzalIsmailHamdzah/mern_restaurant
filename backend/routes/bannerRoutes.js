@@ -1,19 +1,21 @@
-const express = require("express");
-const router = express.Router();
-const {
-  getBanners,
-  createBanner,
+import express from "express";
+import {
+  getBanner,
   updateBanner,
-  deleteBanner,
-} = require("../controllers/bannerController");
-const protect = require("../middleware/authMiddleware");
+  resetBanner,
+  upload
+} from "../controllers/bannerController.js";
+import protect from "../middleware/authMiddleware.js";
 
-//Public
-router.get("/", getBanners);
+const router = express.Router();
 
-// Admin only
-router.post("/", protect, createBanner);
-router.put("/:id", protect, updateBanner);
-router.delete("/:id", protect, deleteBanner);
+// Get (Publik)
+router.get("/", getBanner);
 
-module.exports = router;
+// Update (Admin)
+router.put("/", protect, upload.single("image"), updateBanner);
+
+// Reset (Admin)
+router.post("/reset", protect, resetBanner);
+
+export default router;
