@@ -11,7 +11,7 @@ export const getReviews = async (req, res, next) => { // <-- Tambah 'export'
 };
 
 // Ambil jumlah review baru (misalnya yang dibuat hari ini)
-export const getNewReviews = async (req, res) => { // <-- Tambah 'export'
+export const getNewReviews = async (req, res, next) => { // <-- Tambah 'export'
   try {
     const start = new Date();
     start.setHours(0, 0, 0, 0);

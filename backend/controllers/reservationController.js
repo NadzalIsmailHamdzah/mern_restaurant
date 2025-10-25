@@ -11,7 +11,7 @@ export const getReservations = async (req, res, next) => {
 };
 
 // Get reservasi hari ini
-export const getReservationsToday = async (req, res) => {
+export const getReservationsToday = async (req, res, next) => {
   try {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
@@ -29,7 +29,7 @@ export const getReservationsToday = async (req, res) => {
   }
 };
 
-export const getRecentReservations = async (req, res) => { 
+export const getRecentReservations = async (req, res, next) => { 
   try {
     const reservations = await Reservation.find()
       .sort({ createdAt: -1 }) // urut dari terbaru
