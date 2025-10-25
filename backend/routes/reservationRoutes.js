@@ -1,17 +1,25 @@
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+import {
   getReservations,
+  getReservationsToday,
+  getRecentReservations,
   createReservation,
   updateReservationStatus,
   deleteReservation,
-} = require("../controllers/reservationController");
-const protect = require("../middleware/authMiddleware");
+} from "../controllers/reservationController.js";
+import protect from "../middleware/authMiddleware.js"; // <-- Ini sudah benar
+
+const router = express.Router();
+
+// --- Rute Publik (Contoh) ---
+router.post("/", createReservation);
+router.get("/recent", getRecentReservations);
 
 
-router.get("/", getReservations);
-router.post("/", protect, createReservation);
-router.put("/:id/status", protect, updateReservationStatus);
-router.delete("/:id", protect, deleteReservation);
+// --- Rute Admin (Perlu 'protect') ---
+router.get("/", protect, getReservations); // <-- TAMBAH protect
+router.get("/today", protect, getReservationsToday); // <-- TAMBAH protect
+router.put("/:id/status", protect, updateReservationStatus); // <-- TAMBAH protect
+router.delete("/:id", protect, deleteReservation); // <-- TAMBAH protect
 
-module.exports = router;
+export default router;

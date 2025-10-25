@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const reservationSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     phone: { type: String, required: true },
-    date: { type: Date, required: true },
     people: { type: Number, required: true },
+    date: { type: Date, required: true },
     note: { type: String },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "canceled"],
+      enum: ["pending", "confirmed", "cancelled"],
       default: "pending",
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Reservation", reservationSchema);
+export default mongoose.model("Reservation", reservationSchema);
