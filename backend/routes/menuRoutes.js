@@ -1,20 +1,19 @@
-const express = require("express");
-const {
-  getMenus,
-  createMenu,
-  getMenuById,
-  updateMenu,
-  deleteMenu,
-} = require("../controllers/menuController");
-const protect = require("../middleware/authMiddlleware");
-
+import express from "express";
+import * as menuController from "../controllers/menuController.js";
 
 const router = express.Router();
 
-router.get("/", getMenus);
-router.get("/:id", getMenuById);
-router.post("/", protect, createMenu);
-router.put("/:id", protect, updateMenu);
-router.delete("/:id", protect, deleteMenu);
+// Create menu dengan upload gambar
+router.post("/", menuController.upload.single("image"), menuController.createMenu);
 
-module.exports = router;
+// Update menu
+router.put("/:id", menuController.upload.single("image"), menuController.updateMenu);
+
+// Read
+router.get("/", menuController.getMenus);
+router.get("/:id", menuController.getMenuById);
+
+// Delete
+router.delete("/:id", menuController.deleteMenu);
+
+export default router;

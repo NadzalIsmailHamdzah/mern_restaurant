@@ -1,63 +1,122 @@
-const Menu = require("../models/Menu");
+import fs from "fs";
+import multer from "multer";
+import Menu from "../models/Menu.js";
 
-// GET all menu
-exports.getMenus = async (req, res) => {
+const mapMenu = (menu) => ({
+  id: menu._id,
+  name: menu.name,
+  description: menu.description,
+  price: menu.price,
+  category: menu.category,
+  image: menu.image,
+});
+
+// Konfigurasi multer 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = "uploads/menu/";
+    // Buat folder jika belum ada
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+// upload harus di-export agar bisa dipakai di route
+export const upload = multer({ storage: storage });
+
+// CREATE MENU
+export const createMenu = async (req, res, next) => {
   try {
-    const menus = await Menu.find();
-    res.json(menus);
+    if (!req.file) return res.status(400).json({ message: "Image is required" });
+
+    // Ambil field sesuai model
+    const { name, price, category, description } = req.body;
+    // Validasi field sesuai model
+    if (!name || !price || !category || !description) {
+      return res.status(400).json({ message: "Name, price, category, and description are required" });
+    }
+
+    const newMenu = new Menu({
+      image: req.file.path,
+      name,
+      price,
+      category,
+      description,
+    });
+
+    const savedMenu = await newMenu.save();
+    res.status(201).json(mapMenu(savedMenu));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-// POST create menu
-exports.createMenu = async (req, res) => {
+// GET ALL MENUS
+export const getMenus = async (req, res, next) => {
   try {
-    const { nama, harga, kategori } = req.body;
-    if (!nama || !harga || !kategori) {
-      return res.status(400).json({ message: "Nama, harga, dan kategori wajib diisi" });
-    }
-    if (isNaN(harga)) {
-      return res.status(400).json({ message: "Harga harus berupa angka" });
-    }
-
-    const menu = new Menu({ nama, harga, kategori });
-    const saved = await menu.save();
-    res.status(201).json(saved);
+    const menus = await Menu.find().sort({ createdAt: -1 });
+    res.status(200).json(menus.map(mapMenu)); 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-// GET by ID
-exports.getMenuById = async (req, res) => {
+// GET SINGLE MENU
+export const getMenuById = async (req, res, next) => {
   try {
     const menu = await Menu.findById(req.params.id);
-    if (!menu) return res.status(404).json({ message: "Menu tidak ditemukan" });
-    res.json(menu);
+    if (!menu) return res.status(404).json({ message: "Menu not found" });
+    res.status(200).json(mapMenu(menu));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err); 
   }
 };
 
-// PUT update
-exports.updateMenu = async (req, res) => {
+// UPDATE MENU
+export const updateMenu = async (req, res, next) => {
   try {
-    const updated = await Menu.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: "Menu tidak ditemukan" });
-    res.json(updated);
+    const menu = await Menu.findById(req.params.id);
+    if (!menu) return res.status(404).json({ message: "Menu not found" });
+
+    // remove old image if new one uploaded
+    if (req.file && menu.image) {
+      if (fs.existsSync(menu.image)) fs.unlinkSync(menu.image); 
+      menu.image = req.file.path;
+    }
+
+    // Ambil field sesuai model
+    const { name, price, category, description } = req.body;
+    if (name !== undefined) menu.name = name;
+    if (price !== undefined) menu.price = price;
+    if (category !== undefined) menu.category = category;
+    if (description !== undefined) menu.description = description;
+
+    const updatedMenu = await menu.save();
+    res.status(200).json(mapMenu(updatedMenu));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-// DELETE
-exports.deleteMenu = async (req, res) => {
+// DELETE MENU
+export const deleteMenu = async (req, res, next) => {
   try {
-    const deleted = await Menu.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Menu tidak ditemukan" });
-    res.json({ message: "Menu dihapus" });
+    const menu = await Menu.findById(req.params.id);
+    if (!menu) return res.status(404).json({ message: "Menu not found" });
+
+    // Hapus gambar terkait
+    if (menu.image && fs.existsSync(menu.image)) {
+      fs.unlinkSync(menu.image);
+    }
+
+    await menu.deleteOne();
+    res.status(200).json({ message: "Menu deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
