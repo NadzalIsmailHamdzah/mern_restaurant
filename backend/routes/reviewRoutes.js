@@ -1,18 +1,20 @@
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+import {
   getReviews,
+  getNewReviews,
   createReview,
   updateReview,
   deleteReview,
-} = require("../controllers/reviewController");
-const protect = require("../middleware/authMiddleware");
+} from "../controllers/reviewController.js";
+import protect from "../middleware/authMiddleware.js"; // <-- 1. Impor (pastikan path-nya benar)
 
+const router = express.Router();
 
 // Admin only
-router.get("/", getReviews);
+router.get("/", protect, getReviews); // <-- 2. Terapkan protect
+router.get("/new", protect, getNewReviews);
 router.post("/", protect, createReview);
 router.put("/:id", protect, updateReview);
 router.delete("/:id", protect, deleteReview);
 
-module.exports = router;
+export default router;
